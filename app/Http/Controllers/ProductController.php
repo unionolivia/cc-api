@@ -4,82 +4,86 @@ namespace App\Http\Controllers;
 
 use App\Product;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProductResource;
+
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
+     /**
+     * 
+     * List available Categories
      *
-     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        //
+         return ProductResource::collection(Product::paginate(25));
     }
 
     /**
-     * Show the form for creating a new resource.
+     *  Add a Category
      *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+	 * 	@param  \Illuminate\Http\Request  $request
+     * 	@return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+      if (!$request->hasFile('img')) {
+         return response()->json(['upload_file_not_found'], 404);
+       }  
+         $image = $request->file('img');
+         if(!$image->isValid()) {
+           return response()->json(['invalid_file_upload'], 404);
+          }
+
+         $fileName = $image->getClientOriginalName();
+         $destinationPath = public_path() . '/uploads/';
+         $image->move($destinationPath, $fileName);
+         
+         
+         $product = Product::create([
+            'category_id' => $request->category_id,
+            'name' => $request->name,
+            'price' => $request->price,
+            'img' => $filename
+      ]);
+      
+        return new ProductResource($product);
+
     }
 
     /**
-     * Display the specified resource.
+     * 
      *
-     * @param  \App\Product  $product
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show(Product $product)
     {
-        //
+         return new ProductResource($product);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * 
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Product  $product
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $product->update($request->only(['name','category_id', 'price']));
+        return new ProductResource($product);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 
      *
-     * @param  \App\Product  $product
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return response()->json(['product successfully deleted'], 204);
     }
 }

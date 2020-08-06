@@ -20,3 +20,6 @@ Route::get('logout', 'AuthController@logout');
 Route::post('forgot_password', 'UserController@forgot_password');
 Route::get('user', 'AuthController@getAuthUser');
 
+Route::apiResource('products', 'ProductController');
+Route::apiResource('categories', 'CategoryController');
+
