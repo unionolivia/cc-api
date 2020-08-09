@@ -14,12 +14,15 @@ use Illuminate\Http\Request;
 */
 
 
-Route::post('register', 'UserController@register');
-Route::post('login', 'UserController@login');
-Route::get('logout', 'AuthController@logout');
-Route::post('forgot_password', 'UserController@forgot_password');
-Route::get('user', 'AuthController@getAuthUser');
+Route::post('register', 'Api\UserController@register');
+Route::post('login', 'Api\UserController@login');
+Route::get('logout', 'Api\AuthController@logout');
+Route::post('forgot_password', 'Api\UserController@forgot_password');
+Route::get('user', 'Api\AuthController@getAuthUser');
 
-Route::apiResource('products', 'ProductController');
-Route::apiResource('categories', 'CategoryController');
+Route::get('/email/resend', 'Api\VerificationController@resend')->name('verification.resend');
+Route::get('/email/verify/{id}/{hash}', 'Api\VerificationController@verify')->name('verification.verify');
+
+Route::apiResource('products', 'Api\ProductController');
+Route::apiResource('categories', 'Api\CategoryController');
 

@@ -46,9 +46,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+    	if ($exception instanceof MethodNotAllowedHttpException)
+       { 
+          return response()->json(['success' => 0,
+                                   'message' => 'Method is not allowed for this request'], 405);
+       }
          // This will replace our 404 response with
     // a JSON response.
-    if ($exception instanceof ModelNotFoundException &&
+   elseif ($exception instanceof ModelNotFoundException &&
         $request->wantsJson())
     {
         return response()->json([

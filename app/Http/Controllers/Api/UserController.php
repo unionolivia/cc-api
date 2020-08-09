@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\User;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
@@ -24,18 +24,8 @@ class UserController extends Controller
                 'password' => Hash::make($request->get('password')),
             ]);
            
-           // Send a welcome mail
-           $data = [
-        	   'name' => $user->name,
-        	   'password' => $request->password,        	
-        	];
-        	
-        	Mail::send('emails.welcome', $data, function($message) use ($user){
-        	    $message
-        	    ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
-        	    ->to($user->email, '')
-        	    ->subject('Welcome to CC-API');
-        	});
+                 	
+        	event(new \App\Events\WelcomeUser($user));
 
            // Immediately login the user
       	 $token = auth()->login($user);
