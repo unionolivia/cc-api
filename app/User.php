@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Notifications\VerifyEmail;
 
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
@@ -37,6 +38,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+     
+    
+    /**
+    * Send the email verification notification
+    * 
+    * @return void
+    */
+    public function sendEmailVerificationNotification(){
+    	$this->notify(new VerifyEmail);
+    }
     
      public function getJWTIdentifier()
      {

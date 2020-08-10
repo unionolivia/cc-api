@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Verified;
 
 class VerificationController extends Controller
 {
@@ -42,21 +43,17 @@ class VerificationController extends Controller
     
      public function verify(Request $request)
     {
-    	auth()->loginUsingId($request->route('id'));
-    	
-    	if ($request->route('id') != $request->user()->getKey()) {
-            throw new AuthorizationException;
+    	$user = $request->user();
+    	if ($request->route('id') == $user->getKey() && $user->markEmailAsVerified()) {
+            event(new Verified($user));
         }
         
-        if ($request->user()->hasVerifiedEmail()) {
-            return response(['message' => 'Already verified']);
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Already verified']);
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
 
-        return response(['message' => 'Successfully verified']);
+        return response()->json(['message' => 'Successfully verified']);
     }
 
     /**
@@ -68,15 +65,15 @@ class VerificationController extends Controller
     public function resend(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return response(['message' => 'Already verified']);
+            return response()->json(['message' => 'Already verified']);
         }
 
         $request->user()->sendEmailVerificationNotification();
         
         if($request->wantsJson()){
-        	return response(['message' => 'Email Sent']);
+        	return response()->json(['message' => 'Email Sent']);
         }
 
-        return back()->with('resent', true);
+         return response()->json(['message' => 'The email has been resent']);
     }
 }
