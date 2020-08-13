@@ -25,11 +25,12 @@ class UserController extends Controller
             ]);
            
                  	
-        	event(new \App\Events\WelcomeUser($user));
+        
 
            // Immediately login the user
       	 $token = auth()->login($user);
-
+      	 $user->sendEmailVerificationNotification();
+      	 event(new \App\Events\WelcomeUser($user));
       	return $this->respondWithToken($token);
         }
         
